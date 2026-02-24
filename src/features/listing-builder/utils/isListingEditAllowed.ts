@@ -12,19 +12,35 @@ export function validateUpdatePermissions(
   user: UserModel,
 ) {
   const isGod = user?.role === 'GOD';
+  const isStLead = !!user?.stLead;
   const pastDeadline = isDeadlineOver(listing?.deadline ?? undefined);
 
   logger.info('Check for past deadline of listing', {
     id: listing.id,
     pastDeadline,
     deadline: listing?.deadline,
+    isStLead,
+    isWinnersAnnounced: listing?.isWinnersAnnounced,
   });
 
   if (isGod) return null;
 
-  if (pastDeadline) {
+  if (isStLead && listing?.isWinnersAnnounced) {
+    logger.warn('Listing winners are announced, hence cannot be edited', {
+      id: listing.id,
+      isStLead,
+    });
+    return NextResponse.json(
+      { message: 'Listing winners are announced, hence cannot be edited' },
+      { status: 400 },
+    );
+  }
+
+  if (pastDeadline && !isStLead) {
     logger.warn('Listing is past deadline, hence cannot be edited', {
       id: listing.id,
+      isStLead,
+      isWinnersAnnounced: listing?.isWinnersAnnounced,
     });
     return NextResponse.json(
       { message: 'Listing is past deadline, hence cannot be edited' },

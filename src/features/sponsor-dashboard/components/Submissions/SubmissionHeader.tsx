@@ -197,6 +197,13 @@ export const SubmissionHeader = ({
   };
 
   const pastDeadline = isDeadlineOver(bounty?.deadline);
+  const canStLeadEditInReview = Boolean(
+    user?.stLead &&
+      bounty?.isPublished &&
+      !bounty?.isWinnersAnnounced &&
+      pastDeadline &&
+      bounty?.type !== 'grant',
+  );
 
   const totalPodiumSpots = remainings
     ? remainings.podiums + remainings.bonus
@@ -293,7 +300,8 @@ export const SubmissionHeader = ({
                 (user?.role === 'GOD' && bounty?.type !== 'grant') ||
                 (bounty?.isPublished &&
                   !pastDeadline &&
-                  bounty.type !== 'grant')
+                  bounty.type !== 'grant') ||
+                canStLeadEditInReview
               ) &&
                 !isHackathonPage &&
                 getEditText() && (

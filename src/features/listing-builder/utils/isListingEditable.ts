@@ -43,12 +43,22 @@ export const isListingEditable = ({
     return true;
   }
 
+  const isStLead = !!user?.stLead;
+
+  if (isStLead && listing?.isWinnersAnnounced) {
+    return false;
+  }
+
   if (['Draft', 'Under Verification'].includes(listingStatus)) {
     return true;
   }
 
   if (listingStatus === 'In Progress') {
     return !isDeadlineOver(listing.deadline ?? undefined);
+  }
+
+  if (isStLead && listingStatus === 'In Review') {
+    return true;
   }
 
   return false;
